@@ -1,0 +1,4 @@
+setuptools==75.2.0
+numpy==2.1.2
+requests==2.32.3
+pandas==2.2.3
