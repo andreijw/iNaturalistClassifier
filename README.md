@@ -5,7 +5,7 @@ I will utilize Artificial Intelligence and Machine Learning models to classify d
 
 This project works by accessing the Inaturalist [API](https://api.inaturalist.org/v1/docs) with python in order to download the desired images / metadata. Then the images will be classified with simple ai.
 
-## How to run
+## Setup
 
 Requires python 3.12+
 
@@ -21,4 +21,18 @@ python -m venv ./env
 
 pip install -r requirements.txt
 pip install -e .
+```
+
+### How to run
+
+Create a dataset
+
+``` sh
+python main.py download --config_path /path/to/config.json --dataset_path /path/to/dataset --verbose
+```
+
+Classify a dataset
+
+```sh
+python main.py classify --config_path /path/to/config.json --classify_path /path/to/classify --verbose
 ```
