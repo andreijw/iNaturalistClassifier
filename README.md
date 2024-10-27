@@ -23,6 +23,20 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
+### Update the config
+
+config.json - currently ignored in the project
+
+```json
+{
+    "username": "",
+    "password": "",
+    "app_id": "",
+    "app_secret": "",
+    "project": ""
+}
+```
+
 ### How to run
 
 Create a dataset
