@@ -1,5 +1,5 @@
-import os
 import json
+from library.base_io import BaseIO
 
 from common.constants import USERNAME, PASSWORD, APP_ID, APP_SECRET
 
@@ -8,8 +8,8 @@ class ConfigHelper:
     def __init__(self, config_path):
         if (
             not config_path
-            or not os.path.exists(config_path)
-            or not os.path.isfile(config_path)
+            or not BaseIO.path.exists(config_path)
+            or not BaseIO.path.isfile(config_path)
         ):
             raise ValueError("Config path is not valid")
         self.config_path = config_path

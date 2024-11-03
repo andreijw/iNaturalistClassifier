@@ -37,18 +37,20 @@ def validate_args(args: argparse.Namespace) -> bool:
         logging.error("Please provide a valid command")
         return False
 
-    baseIO = BaseIO()
-
-    if not baseIO.is_path_valid(args.config_path):
+    if not BaseIO.is_path_valid(args.config_path) or not BaseIO.is_path_file(
+        args.config_path
+    ):
         logging.error(f"Config path {args.config_path} is not valid")
         return False
 
     operating_path = (
         args.dataset_path if args.command == Command.DOWNLOAD else args.predict_path
     )
-    if not baseIO.is_path_valid(operating_path):
+    if not BaseIO.is_path_valid(operating_path) or not BaseIO.is_path_directory(
+        operating_path
+    ):
         logging.DEBUG(f"Input path {operating_path} is not valid. Creating it...")
-        baseIO.create_directory(operating_path)
+        BaseIO.create_directory(operating_path)
 
     return True
 

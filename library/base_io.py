@@ -9,10 +9,8 @@ class BaseIO:
     * directory_path to use
     """
 
-    def __init__(self):
-        pass
-
-    def create_directory(self, directory_path: str) -> None:
+    @staticmethod
+    def create_directory(directory_path: str) -> None:
         """Create the directory if it does not exist
 
         Args:
@@ -21,7 +19,8 @@ class BaseIO:
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
 
-    def clear_directory(self, directory_path: str) -> None:
+    @staticmethod
+    def clear_directory(directory_path: str) -> None:
         """Iterate over the input directory and delete all the files and directories if any are found
 
         Args:
@@ -35,7 +34,8 @@ class BaseIO:
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
 
-    def delete_directory(self, directory_path: str) -> None:
+    @staticmethod
+    def delete_directory(directory_path: str) -> None:
         """Delete the directory and input files
 
         Args:
@@ -43,7 +43,8 @@ class BaseIO:
         """
         os.rmdir(directory_path)
 
-    def is_path_directory(self, directory_path: str) -> bool:
+    @staticmethod
+    def is_path_directory(directory_path: str) -> bool:
         """Check if the input path is a directory
 
         Args:
@@ -51,7 +52,8 @@ class BaseIO:
         """
         return os.path.isdir(directory_path)
 
-    def is_path_file(self, file_path: str) -> bool:
+    @staticmethod
+    def is_path_file(file_path: str) -> bool:
         """Check if the input path is a file
 
         Args:
@@ -59,15 +61,21 @@ class BaseIO:
         """
         return os.path.isfile(file_path)
 
-    def is_path_valid(self, path: str) -> bool:
+    @staticmethod
+    def is_path_valid(path: str) -> bool:
         """Check if the input path is a valid path
 
         Args:
             path: Path for usage
         """
-        return path is None and os.path.exists(path)
+        return (
+            path is None
+            and os.path.exists(path)
+            and (BaseIO.is_path_directory(path) or BaseIO.is_path_file(path))
+        )
 
-    def save_file(self, directory_path: str, file_name: str, contents: Any) -> None:
+    @staticmethod
+    def save_file(directory_path: str, file_name: str, contents: Any) -> None:
         """Save the file_name to the directory_path
 
         Args:
@@ -80,13 +88,14 @@ class BaseIO:
         with open(full_path, "w") as file:
             file.write(contents)
 
-    def read_file(self, full_path: str) -> Any:
+    @staticmethod
+    def read_file(full_path: str) -> Any:
         """Read the contents from the input file
 
         Args:
             full_path: file_name to read the contents from
         """
-        if not self.is_path_file(full_path):
+        if not BaseIO.is_path_file(full_path):
             return None
 
         with open(full_path, "r") as file:
