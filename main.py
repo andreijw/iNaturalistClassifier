@@ -17,7 +17,9 @@ def run_application(args: str) -> None:
 
     """
     command = Command(args.command)
+    logging.debug(f"Command: {command}")
     config = ConfigHelper(args.config_path)
+    logging.debug(f"Config: {config}")
 
     match (command):
         case Command.DOWNLOAD:
@@ -70,11 +72,15 @@ if __name__ == "__main__":
         "-c", "--config_path", help="Path to the config.json file", required=True
     )
 
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(
+        dest="command",
+        required=True,
+        help="Command to run. Options are: download, predict",
+    )
 
     # Subparser for the download command
     download_parser = subparsers.add_parser(
-        str(Command.DOWNLOAD), help="Download and create a dataset"
+        str(Command.DOWNLOAD).lower(), help="Download and create a dataset"
     )
     download_parser.add_argument(
         "-d",
@@ -85,7 +91,7 @@ if __name__ == "__main__":
 
     # Subparser for the classify command
     classify_parser = subparsers.add_parser(
-        str(Command.PREDICT), help="Predict a dataset"
+        str(Command.PREDICT).lower(), help="Predict a dataset"
     )
     classify_parser.add_argument(
         "-p", "--predict_path", help="Path to the dataset to predict", required=True
@@ -96,6 +102,7 @@ if __name__ == "__main__":
         logging.basicConfig(encoding="utf-8", level=logging.DEBUG)
     else:
         logging.basicConfig(encoding="utf-8", level=logging.ERROR)
+    logging.debug(f"Arguments: {args}")
 
     if validate_args(args):
         run_application(args)

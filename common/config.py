@@ -34,3 +34,10 @@ class ConfigHelper:
             config_contents[APP_ID],
             config_contents[APP_SECRET],
         )
+
+    def __str__(self) -> str:
+        config_str = f"ConfigHelper Path: ({self.config_path})"
+        for key, value in self.__dict__.items():
+            config_str += f"{key}: {value}"
+
+        return config_str
