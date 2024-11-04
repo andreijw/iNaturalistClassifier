@@ -6,11 +6,7 @@ from common.constants import USERNAME, PASSWORD, APP_ID, APP_SECRET
 
 class ConfigHelper:
     def __init__(self, config_path):
-        if (
-            not config_path
-            or not BaseIO.path.exists(config_path)
-            or not BaseIO.path.isfile(config_path)
-        ):
+        if not config_path or not BaseIO.is_path_valid(config_path):
             raise ValueError("Config path is not valid")
         self.config_path = config_path
         self.username, self.password, self.app_id, self.app_secret = self.get_config()
@@ -36,8 +32,8 @@ class ConfigHelper:
         )
 
     def __str__(self) -> str:
-        config_str = f"ConfigHelper Path: ({self.config_path})"
+        config_str = f"ConfigHelper Config: |"
         for key, value in self.__dict__.items():
-            config_str += f"{key}: {value}"
+            config_str += f" {key}: {value} |"
 
         return config_str

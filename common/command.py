@@ -19,3 +19,10 @@ def validate_command(command: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+def string_to_command(command: str) -> Command:
+    """
+    Convert a string to a Command enum
+    """
+    return Command(command)
