@@ -9,6 +9,7 @@ import argparse
 from common.command import Command, validate_command, string_to_command
 from common.config import ConfigHelper
 from library.base_io import BaseIO
+from controller.project_controller import ProjectController
 
 
 def run_application(args: str) -> None:
@@ -22,8 +23,14 @@ def run_application(args: str) -> None:
 
     match (command):
         case Command.DOWNLOAD:
-            logging.info(f"Downloading dataset: {args.dataset_path}")
-            # Download the dataset
+            logging.info(f"Clearing dataset directory: {args.dataset_path}")
+            BaseIO.clear_directory(args.dataset_path)
+
+            # Get the project ID from the config name
+            projectController = ProjectController()
+            project_id = projectController.get_project_id_by_name(config.project_name)
+
+            logging.debug(f"Found the following project id {project_id}")
         case Command.PREDICT:
             logging.info(f"Predicting dataset: {args.predict_path}")
             # Predict the dataset

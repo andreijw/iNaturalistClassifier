@@ -1,7 +1,7 @@
 import json
 from library.base_io import BaseIO
 
-from common.constants import USERNAME, PASSWORD, APP_ID, APP_SECRET
+from common.constants import USERNAME, PASSWORD, APP_ID, APP_SECRET, PROJECT_NAME
 
 
 class ConfigHelper:
@@ -9,26 +9,33 @@ class ConfigHelper:
         if not config_path or not BaseIO.is_path_valid(config_path):
             raise ValueError("Config path is not valid")
         self.config_path = config_path
-        self.username, self.password, self.app_id, self.app_secret = self.get_config()
+        (
+            self.username,
+            self.password,
+            self.app_id,
+            self.app_secret,
+            self.project_name,
+        ) = self.get_config()
 
     def get_config(self) -> tuple[str, str, str]:
         """Get the configuration from the config file"""
         config_contents = {}
-        with open(self.config_path, "r") as file:
-            config_contents = json.load(file)
+        try:
+            with open(self.config_path, "r") as file:
+                config_contents = json.load(file)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            raise ValueError(f"Error reading config file: {e}")
 
-        if (
-            USERNAME not in config_contents
-            or PASSWORD not in config_contents
-            or APP_ID not in config_contents
-            or APP_SECRET not in config_contents
-        ):
-            raise ValueError("Config file is not valid")
+        required_keys = [USERNAME, PASSWORD, APP_ID, APP_SECRET, PROJECT_NAME]
+        for key in required_keys:
+            if key not in config_contents:
+                raise ValueError(f"Config file is missing required key: {key}")
         return (
             config_contents[USERNAME],
             config_contents[PASSWORD],
             config_contents[APP_ID],
             config_contents[APP_SECRET],
+            config_contents[PROJECT_NAME],
         )
 
     def __str__(self) -> str:
