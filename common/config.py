@@ -10,14 +10,14 @@ class ConfigHelper:
             raise ValueError("Config path is not valid")
         self.config_path = config_path
         (
-            self.username,
-            self.password,
-            self.app_id,
-            self.app_secret,
-            self.project_name,
+            self._username,
+            self._password,
+            self._app_id,
+            self._app_secret,
+            self._project_name,
         ) = self.get_config()
 
-    def get_config(self) -> tuple[str, str, str]:
+    def get_config(self) -> tuple[str, str, str, str, str]:
         """Get the configuration from the config file"""
         config_contents = {}
         try:
@@ -44,3 +44,23 @@ class ConfigHelper:
             config_str += f" {key}: {value} |"
 
         return config_str
+
+    @property
+    def username(self) -> str:
+        return self._username
+
+    @property
+    def password(self) -> str:
+        return self._password
+
+    @property
+    def app_id(self) -> str:
+        return self._app_id
+
+    @property
+    def app_secret(self) -> str:
+        return self._app_secret
+
+    @property
+    def project_name(self) -> str:
+        return self._project_name
