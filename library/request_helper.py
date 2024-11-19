@@ -2,7 +2,8 @@ import logging
 import threading
 import requests
 
-from requests import Session
+from urllib.parse import urlencode, quote
+from requests import Session, Request, PreparedRequest
 from urllib3.util import Retry
 
 logger = logging.getLogger(__name__)
@@ -33,10 +34,14 @@ class RequestsHelper(Session):
         self.headers["Accept"] = "application/json"
 
     def send_request(
-        url: str,
+        self,
         method: str,
+        url: str,
+        params: dict = None,
+        headers: dict = None,
+        data: dict = None,
+        json: dict = None,
         return_type: str = "json",
-        **kwargs,
     ) -> requests.Response:
         """Send an HTTP request
 
@@ -48,17 +53,31 @@ class RequestsHelper(Session):
             headers: The headers to send with the request
             data: The form data to send with the request
             json: The JSON data to send with the request
+            return_type: The type of response to return (json, text, etc.)
 
         Returns:
             The response object
         """
         try:
-            response = requests.request(method, url, **kwargs)
+            if params:
+                encoded_params = urlencode(params, quote_via=quote)
+                url = f"{url}?{encoded_params}"
+
+            request = Request(
+                method=method,
+                url=url,
+                headers=headers or self.headers,
+                data=data,
+                json=json,
+            )
+            prepared_request = self.prepare_request(request)
+            response = self.send(prepared_request, timeout=self.timeout)
             response.raise_for_status()
         except requests.RequestException as e:
             logger.error(f"{method} request to {url} failed: {e}")
             return None
 
+        breakpoint()
         if return_type == "json":
             return response.json()
         return response

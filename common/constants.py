@@ -2,8 +2,8 @@ from typing import Any, BinaryIO, Dict, Iterable, Union
 
 # iNaturalist URLs
 BASE_URL = "https://www.inaturalist.org"
-API_V1 = f"{BASE_URL}/v1"
-EXPORT_URL = f"{BASE_URL}/observations/export"
+BASE_API_URL = "https://api.inaturalist.org"
+API_V1 = f"{BASE_API_URL}/v1"
 
 # projects
 PROJECTS_ENDPOINT = "projects/autocomplete"

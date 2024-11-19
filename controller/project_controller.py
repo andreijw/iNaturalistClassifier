@@ -1,4 +1,5 @@
 from common.constants import API_V1, PROJECTS_ENDPOINT
+from urllib.parse import quote
 from library.request_helper import get_local_session
 
 import logging
@@ -67,6 +68,6 @@ class ProjectController:
         logging.debug(f"creating pararms {params}")
 
         project_info = self.session.send_request(
-            self.endpoint, "GET", return_type="json", **params
+            method="GET", url=self.endpoint, return_type="json", params=params
         )
         return project_info
