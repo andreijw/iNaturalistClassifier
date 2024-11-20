@@ -9,6 +9,7 @@ import argparse
 from common.command import Command, validate_command, string_to_command
 from common.config import ConfigHelper
 from library.base_io import BaseIO
+from library.dataset_Loader import DatasetLoader
 from controller.project_controller import ProjectController
 from controller.observation_controller import ObservationController
 
@@ -34,6 +35,7 @@ def run_application(args: str) -> None:
             logging.debug(f"Found the following project id {project_id}")
 
             observationController = ObservationController()
+            dataLoader = DatasetLoader()
             total_images = 0
             data_size = 1
             page = 1
