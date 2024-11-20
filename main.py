@@ -10,6 +10,7 @@ from common.command import Command, validate_command, string_to_command
 from common.config import ConfigHelper
 from library.base_io import BaseIO
 from controller.project_controller import ProjectController
+from controller.observation_controller import ObservationController
 
 
 def run_application(args: str) -> None:
@@ -31,6 +32,28 @@ def run_application(args: str) -> None:
             project_id = projectController.get_project_id_by_name(config.project_name)
 
             logging.debug(f"Found the following project id {project_id}")
+
+            observationController = ObservationController()
+            total_images = 0
+            data_size = 1
+            page = 1
+
+            while data_size > 0:
+                observations = observationController.get_project_observations(
+                    project_id, page=page, per_page=200
+                )
+                data_size = len(observations["results"])
+                total_images += data_size
+                logging.debug(f"Found {data_size} images on page {page}")
+                page += 1
+
+                if page > 1:
+                    break
+
+            logging.info(
+                f"finished getting all the observations after {page-1} pages. \n Total images {total_images}"
+            )
+
         case Command.PREDICT:
             logging.info(f"Predicting dataset: {args.predict_path}")
             # Predict the dataset

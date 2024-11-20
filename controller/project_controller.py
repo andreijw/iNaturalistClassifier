@@ -11,7 +11,6 @@ class ProjectController:
     """Custom ProjectController to use to get, create and update information about projects"""
 
     def __init__(self):
-        logger.debug(f"Creating the Project Controller")
         self.endpoint = f"{API_V1}/{PROJECTS_ENDPOINT}"
         self.session = get_local_session()
 

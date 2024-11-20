@@ -77,7 +77,6 @@ class RequestsHelper(Session):
             logger.error(f"{method} request to {url} failed: {e}")
             return None
 
-        breakpoint()
         if return_type == "json":
             return response.json()
         return response
