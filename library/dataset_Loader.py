@@ -25,16 +25,23 @@ class DatasetLoader:
             logger.error(f"Failed to load dataset from {path}: {e}")
             raise
 
-    def save_json_to_dataset(self, dataset_path: str, json_dataset: str):
+    def save_json_to_dataset(self, dataset_path: str, json_content: str):
         """Save the dataset to the input path as a JSON file
 
         Args:
             dataset_path: Path to save the dataset
-            json_dataset: JSON string containing the dataset
+            json_content: JSON string containing the dataset
         """
         try:
-            dataset = pd.read_json(json_dataset)
-            dataset.to_csv(dataset_path, index=False)
+            json_dataset = json_content["dataset"]
+            dataset = [
+                pd.json_normalize(dataset_fragment) for dataset_fragment in json_dataset
+            ]
+            df = pd.concat(dataset, ignore_index=True)
+            print(df.head(10))
+            breakpoint()
+            logging.debug(f"Found {len(df)} images")
+
             logger.info(f"Dataset saved to {dataset_path} from JSON")
         except Exception as e:
             logger.error(f"Failed to save dataset to {dataset_path} from JSON: {e}")

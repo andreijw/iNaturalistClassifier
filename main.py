@@ -9,7 +9,6 @@ import argparse
 from common.command import Command, validate_command, string_to_command
 from common.config import ConfigHelper
 from library.base_io import BaseIO
-from library.dataset_Loader import DatasetLoader
 from controller.project_controller import ProjectController
 from controller.observation_controller import ObservationController
 
@@ -35,25 +34,8 @@ def run_application(args: str) -> None:
             logging.debug(f"Found the following project id {project_id}")
 
             observationController = ObservationController()
-            dataLoader = DatasetLoader()
-            total_images = 0
-            data_size = 1
-            page = 1
-
-            while data_size > 0:
-                observations = observationController.get_project_observations(
-                    project_id, page=page, per_page=200
-                )
-                data_size = len(observations["results"])
-                total_images += data_size
-                logging.debug(f"Found {data_size} images on page {page}")
-                page += 1
-
-                if page > 1:
-                    break
-
-            logging.info(
-                f"finished getting all the observations after {page-1} pages. \n Total images {total_images}"
+            observationController.save_observations_as_dataset(
+                project_id, args.dataset_path
             )
 
         case Command.PREDICT:
