@@ -1,4 +1,4 @@
-from common.constants import DATASET_COLUMNS, SQUARE_SUFIX, MEDIUM_SUFIX
+from common.constants import DATASET_COLUMNS, SQUARE_SUFIX, MEDIUM_SUFIX, UNKNOWN
 
 import pandas as pd
 import logging
@@ -46,6 +46,10 @@ class DatasetLoader:
                 else []
             )
         )
+        df["species_guess"] = df["species_guess"].apply(lambda x: x if x else UNKNOWN)
+        df["user.login"] = df["user.login"].apply(lambda x: x if x else UNKNOWN)
+        df["taxon.name"] = df["taxon.name"].apply(lambda x: x if x else UNKNOWN)
+
         return df
 
     def save_json_dataset(self, dataset_file_name: str, json_content: str) -> None:

@@ -34,7 +34,9 @@ def run_application(args: str) -> None:
 
             observationController = ObservationController()
             observationController.save_observations_as_dataset(
-                project_id, args.dataset_path
+                project_id,
+                args.dataset_path,
+                run_id=str(args.run_id) if args.run_id else None,
             )
 
         case Command.PREDICT:

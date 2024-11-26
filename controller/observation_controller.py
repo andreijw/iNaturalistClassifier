@@ -105,5 +105,5 @@ class ObservationController:
         file_name = f"{DATASET_NAME}_{run_id}.csv"
 
         self.dataset_loader.save_json_dataset(
-            os.join(dataset_path, file_name), {"dataset": all_observations}
+            os.path.join(dataset_path, file_name), {"dataset": all_observations}
         )

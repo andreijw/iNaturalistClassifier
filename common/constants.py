@@ -4,6 +4,7 @@ from typing import Any, BinaryIO, Dict, Iterable, Union
 BASE_URL = "https://www.inaturalist.org"
 BASE_API_URL = "https://api.inaturalist.org"
 API_V1 = f"{BASE_API_URL}/v1"
+UNKNOWN = "Unknown"
 
 # projects
 PROJECTS_ENDPOINT = "projects/autocomplete"
@@ -39,7 +40,7 @@ DATASET_COLUMNS = [
     "species_guess",
     "time_observed_at",
     "identifications_most_agree",
-    "user.name",
+    "user.login",
     "uri",
     "photos",
     "taxon.id",
