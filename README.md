@@ -33,7 +33,7 @@ config.json - currently ignored in the project
     "password": "",
     "app_id": "",
     "app_secret": "",
-    "project": ""
+    "project_name": ""
 }
 ```
 
@@ -50,3 +50,5 @@ Classify a dataset
 ```sh
 python main.py classify --config_path /path/to/config.json --classify_path /path/to/classify --verbose
 ```
+
+Can also pass in a specific run id to keep track of different runs / re-run a run

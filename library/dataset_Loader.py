@@ -1,3 +1,5 @@
+from common.constants import DATASET_COLUMNS, SQUARE_SUFIX, MEDIUM_SUFIX
+
 import pandas as pd
 import logging
 
@@ -25,24 +27,47 @@ class DatasetLoader:
             logger.error(f"Failed to load dataset from {path}: {e}")
             raise
 
-    def save_json_to_dataset(self, dataset_path: str, json_content: str):
+    def transform_json_to_dataset(self, json_content: str) -> pd.DataFrame:
+        """Transform the JSON content to a dataset
+
+        Args:
+            json_content: JSON string containing the dataset
+
+        Returns:
+            pd.DataFrame: Transformed dataset
+        """
+        df = pd.json_normalize(json_content)
+
+        df = df[DATASET_COLUMNS]
+        df["photos"] = df["photos"].apply(
+            lambda x: (
+                [photo["url"].replace(SQUARE_SUFIX, MEDIUM_SUFIX) for photo in x]
+                if isinstance(x, list)
+                else []
+            )
+        )
+        return df
+
+    def save_json_dataset(self, dataset_file_name: str, json_content: str) -> None:
         """Save the dataset to the input path as a JSON file
 
         Args:
-            dataset_path: Path to save the dataset
+            dataset_file_name: Path to save the dataset
             json_content: JSON string containing the dataset
         """
         try:
             json_dataset = json_content["dataset"]
             dataset = [
-                pd.json_normalize(dataset_fragment) for dataset_fragment in json_dataset
+                self.transform_json_to_dataset(fragment) for fragment in json_dataset
             ]
             df = pd.concat(dataset, ignore_index=True)
-            print(df.head(10))
-            breakpoint()
             logging.debug(f"Found {len(df)} images")
+            breakpoint()
 
-            logger.info(f"Dataset saved to {dataset_path} from JSON")
+            logger.info(f"Dataset saved to {dataset_file_name} from JSON")
+            df.to_csv(dataset_file_name, index=False)
         except Exception as e:
-            logger.error(f"Failed to save dataset to {dataset_path} from JSON: {e}")
+            logger.error(
+                f"Failed to save dataset to {dataset_file_name} from JSON: {e}"
+            )
             raise

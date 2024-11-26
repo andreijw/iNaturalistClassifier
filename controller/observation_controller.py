@@ -6,9 +6,13 @@ from common.constants import (
     DESCENDING_ORDER,
     ORDER_BY,
     OBSERVATIONS_ENDPOINT,
+    DATASET_NAME,
 )
+from datetime import datetime
 
+import os
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +22,8 @@ class ObservationController:
         self.session = get_local_session()
         self.endpoint = f"{API_V1}/{OBSERVATIONS_ENDPOINT}"
         self.dataset_loader = DatasetLoader()
+        self.rate_limit_per_minute = 60  # 60 requests per minute
+        self.delay_between_requests = 60 / self.rate_limit_per_minute
 
     def get_project_observations(
         self,
@@ -60,7 +66,9 @@ class ObservationController:
 
         return observations
 
-    def save_observations_as_dataset(self, project_id: str, dataset_path: str) -> None:
+    def save_observations_as_dataset(
+        self, project_id: str, dataset_path: str, run_id: str = None
+    ) -> None:
         """Save the observations as a dataset to the input path
 
         Args:
@@ -70,7 +78,7 @@ class ObservationController:
         page = 1
         total_images = 0
         all_observations = []
-        per_page = 2
+        per_page = 200  # INaturalist API returns max of 200 results per call
         total_images = 0
 
         while True:
@@ -83,14 +91,19 @@ class ObservationController:
             total_images += len(observations)
             page += 1
             all_observations.extend(observations)
-            logger.debug(f"Found {len(observations)} observations on page {page}")
-            if page > 2:
-                break
+            logger.debug(f"Foun {len(observations)} observations on page {page-1}")
+
+            time.sleep(self.delay_between_requests)
 
         logging.info(
-            f"finished getting all the observations after {page-1} pages. \n Total images {total_images}"
+            f"finished getting all the observations after {page-1} pages.\n Total images found: {total_images}"
         )
 
-        self.dataset_loader.save_json_to_dataset(
-            dataset_path, {"dataset": all_observations}
+        # Generate a unique file name with run ID or timestamp
+        if run_id is None:
+            run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_name = f"{DATASET_NAME}_{run_id}.csv"
+
+        self.dataset_loader.save_json_dataset(
+            os.join(dataset_path, file_name), {"dataset": all_observations}
         )

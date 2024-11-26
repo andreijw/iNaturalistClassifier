@@ -25,7 +25,6 @@ def run_application(args: str) -> None:
     match (command):
         case Command.DOWNLOAD:
             logging.info(f"Clearing dataset directory: {args.dataset_path}")
-            BaseIO.clear_directory(args.dataset_path)
 
             # Get the project ID from the config name
             projectController = ProjectController()
@@ -86,6 +85,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c", "--config_path", help="Path to the config.json file", required=True
     )
+
+    parser.add_argument("-r", "--run_id", help="Unique ID for the run", required=False)
 
     subparsers = parser.add_subparsers(
         dest="command",
