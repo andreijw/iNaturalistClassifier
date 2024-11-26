@@ -3,8 +3,10 @@ from library.dataset_Loader import DatasetLoader
 from common.constants import (
     API_V1,
     ResponseResult,
+    ASCENDING_ORDER,
     DESCENDING_ORDER,
-    ORDER_BY,
+    ID_ORDER,
+    CREATION_ORDER,
     OBSERVATIONS_ENDPOINT,
     DATASET_NAME,
 )
@@ -30,23 +32,34 @@ class ObservationController:
         project_id: str,
         per_page: int = 200,
         order: str = DESCENDING_ORDER,
-        order_by: str = ORDER_BY,
-        page: int = 0,
+        order_by: str = CREATION_ORDER,
+        page: int = None,
+        id_above: int = None,
     ) -> ResponseResult:
         """Gets the observations for the input taxon
 
-        * taxon_id: Get all the observations for the input taxon
+        * project_id: Get all the observations for the input project_id
+        * per_page: Number of observations to return per page
+        * order: Order of the observations (asc or desc)
+        * order_by: Order by id or species, created_at, etc
+        * page: Page number to get the observations for
+        * id_above: Get observations with IDs above the input id
 
         Examples:
 
             With direct keyword arguments:
 
             >>>  observations = get_observations(
-            >>>     taxon_id="tigers",
+            >>>     project_id="1111",
             >>> )
 
         Args:
-            taxon_id: string taxon to get observations for
+            project_id: string taxon to get observations for
+            per_page: number of observations to return per page
+            order: order of the observations (asc or desc)
+            order_by: order by id or species, created_at, etc
+            page: page number to get the observations for
+            id_above: get observations with IDs above the input id
 
         Returns:
             list of observation responses as json or text
@@ -56,8 +69,11 @@ class ObservationController:
             "per_page": per_page,
             "order": order,
             "order_by": order_by,
-            "page": page,
         }
+        if page:
+            params["page"] = page
+        if id_above:
+            params["id_above"] = id_above
         logging.debug(f"creating pararms {params}")
 
         observations = self.session.send_request(
@@ -74,24 +90,32 @@ class ObservationController:
         Args:
             project_id: Project ID to get the observations for
             dataset_path: Path to save the dataset
+            run_id: Unique ID for the run
         """
-        page = 1
         total_images = 0
         all_observations = []
         per_page = 200  # INaturalist API returns max of 200 results per call
-        total_images = 0
+        id_above = None
+        page = 1
 
         while True:
             results = self.get_project_observations(
-                project_id, page=page, per_page=per_page
+                project_id,
+                id_above=id_above,
+                per_page=per_page,
+                order=ASCENDING_ORDER,
+                order_by=ID_ORDER,
             )
             observations = results["results"]
             if not observations:
                 break
             total_images += len(observations)
-            page += 1
             all_observations.extend(observations)
+            page += 1
             logger.debug(f"Foun {len(observations)} observations on page {page-1}")
+
+            # Get the highest ID from the current batch to use as id_above for the next batch
+            id_above = observations[-1]["id"]
 
             time.sleep(self.delay_between_requests)
 

@@ -24,8 +24,10 @@ PROJECT_NAME = "project_name"
 
 # Request Arguments
 DESCENDING_ORDER = "desc"
+ASCENDING_ORDER = "asc"
 SPECIES_RANK = "species"
-ORDER_BY = "created_at"
+ID_ORDER = "id"
+CREATION_ORDER = "created_at"
 
 # Typing
 ResponseResult = Dict[str, Any]
