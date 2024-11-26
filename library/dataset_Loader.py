@@ -62,7 +62,6 @@ class DatasetLoader:
             ]
             df = pd.concat(dataset, ignore_index=True)
             logging.debug(f"Found {len(df)} images")
-            breakpoint()
 
             logger.info(f"Dataset saved to {dataset_file_name} from JSON")
             df.to_csv(dataset_file_name, index=False)
