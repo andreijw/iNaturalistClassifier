@@ -5,7 +5,10 @@ This is the main runner with argument options. It will allow us to run the diffe
 
 import logging
 import argparse
+from datetime import datetime
+import os
 
+from common.constants import DATASET_NAME
 from common.command import Command, validate_command, string_to_command
 from common.config import ConfigHelper
 from library.base_io import BaseIO
@@ -32,12 +35,25 @@ def run_application(args: str) -> None:
 
             logging.debug(f"Found the following project id {project_id}")
 
-            observationController = ObservationController()
-            observationController.save_observations_as_dataset(
-                project_id,
-                args.dataset_path,
-                run_id=str(args.run_id) if args.run_id else None,
+            # Generate a unique file name with run ID or timestamp
+            run_id = (
+                args.run_id if args.run_id else datetime.now().strftime("%Y%m%d_%H%M%S")
             )
+            file_name = f"{DATASET_NAME}_{run_id}.csv"
+            dataset_path = os.path.join(args.dataset_path, file_name)
+
+            # Download the dataset if it does not exist
+            if not BaseIO.is_path_file(dataset_path):
+                logging.info(f"Downloading dataset to: {dataset_path}")
+                observationController = ObservationController()
+                observationController.save_observations_as_dataset(
+                    project_id,
+                    dataset_path,
+                    run_id=str(args.run_id) if args.run_id else None,
+                )
+
+            # Create the dataset
+            logging.info(f"Creating dataset from: {dataset_path}")
 
         case Command.PREDICT:
             logging.info(f"Predicting dataset: {args.predict_path}")

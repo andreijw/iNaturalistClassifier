@@ -8,11 +8,8 @@ from common.constants import (
     ID_ORDER,
     CREATION_ORDER,
     OBSERVATIONS_ENDPOINT,
-    DATASET_NAME,
 )
-from datetime import datetime
 
-import os
 import logging
 import time
 
@@ -123,11 +120,6 @@ class ObservationController:
             f"finished getting all the observations after {page-1} pages.\n Total images found: {total_images}"
         )
 
-        # Generate a unique file name with run ID or timestamp
-        if run_id is None:
-            run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_name = f"{DATASET_NAME}_{run_id}.csv"
-
         self.dataset_loader.save_json_dataset(
-            os.path.join(dataset_path, file_name), {"dataset": all_observations}
+            dataset_path, {"dataset": all_observations}
         )

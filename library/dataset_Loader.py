@@ -27,6 +27,9 @@ class DatasetLoader:
             logger.error(f"Failed to load dataset from {path}: {e}")
             raise
 
+    def _normalize_text(text: str) -> str:
+        return str(text).lower().strip()
+
     def transform_json_to_dataset(self, json_content: str) -> pd.DataFrame:
         """Transform the JSON content to a dataset
 
@@ -46,19 +49,24 @@ class DatasetLoader:
                 else []
             )
         )
-        df["species_guess"] = df["species_guess"].apply(lambda x: x if x else UNKNOWN)
+        df["species_guess"] = df["species_guess"].apply(
+            lambda x: self._normalize_text(x) if x else UNKNOWN
+        )
         df["user.login"] = df["user.login"].apply(lambda x: x if x else UNKNOWN)
-        df["taxon.name"] = df["taxon.name"].apply(lambda x: x if x else UNKNOWN)
+        df["taxon.name"] = df["taxon.name"].apply(
+            lambda x: self._normalize_text(x) if x else UNKNOWN
+        )
 
         return df
 
-    def save_json_dataset(self, dataset_file_name: str, json_content: str) -> None:
+    def save_json_dataset(self, dataset_file_name: str, json_content: dict) -> None:
         """Save the dataset to the input path as a JSON file
 
         Args:
             dataset_file_name: Path to save the dataset
-            json_content: JSON string containing the dataset
+            json_content: JSON string containing the 'dataset' key and value
         """
+
         try:
             json_dataset = json_content["dataset"]
             dataset = [

@@ -4,7 +4,7 @@ from typing import Any, BinaryIO, Dict, Iterable, Union
 BASE_URL = "https://www.inaturalist.org"
 BASE_API_URL = "https://api.inaturalist.org"
 API_V1 = f"{BASE_API_URL}/v1"
-UNKNOWN = "Unknown"
+UNKNOWN = "unknown"
 
 # projects
 PROJECTS_ENDPOINT = "projects/autocomplete"
