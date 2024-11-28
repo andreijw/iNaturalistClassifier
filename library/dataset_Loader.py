@@ -4,10 +4,22 @@ from common.constants import (
     MEDIUM_SUFIX,
     UNKNOWN,
     SPECIES_NAME,
+    PHOTOS,
+    TAXON_NAME,
+    TAXON_RANK,
+    SPECIES_GUESSES,
+    USER_LOGIN,
+    ENCODED_LABELS,
 )
 
 import pandas as pd
 import logging
+import os
+from library.base_io import BaseIO
+from tqdm import tqdm
+from sklearn.preprocessing import OneHotEncoder
+from library.request_helper import get_request
+from numpy.typing import NDArray
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +48,14 @@ class DatasetLoader:
     def _normalize_text(self, text: str) -> str:
         return str(text).lower().strip()
 
+    def _encode_lables(self, labels: NDArray) -> dict:
+        onehot_encoder = OneHotEncoder()
+        onehot_labels = onehot_encoder.fit_transform(labels.reshape(-1, 1))
+        species_to_onehot = {
+            species: onehot_labels[i] for i, species in enumerate(labels)
+        }
+        return species_to_onehot
+
     def transform_json_to_dataset(self, json_content: str) -> pd.DataFrame:
         """Transform the JSON content to a dataset
 
@@ -48,20 +68,25 @@ class DatasetLoader:
         df = pd.json_normalize(json_content)
 
         df = df[DATASET_COLUMNS]
-        df["photos"] = df["photos"].apply(
+        df[PHOTOS] = df[PHOTOS].apply(
             lambda x: (
                 [photo["url"].replace(SQUARE_SUFIX, MEDIUM_SUFIX) for photo in x]
                 if isinstance(x, list)
                 else []
             )
         )
-        df["species_guess"] = df["species_guess"].apply(
+        df[SPECIES_GUESSES] = df[SPECIES_GUESSES].apply(
             lambda x: self._normalize_text(x) if x else UNKNOWN
         )
-        df["user.login"] = df["user.login"].apply(lambda x: x if x else UNKNOWN)
-        df["taxon.name"] = df["taxon.name"].apply(
+        df[USER_LOGIN] = df[USER_LOGIN].apply(lambda x: x if x else UNKNOWN)
+        df[TAXON_NAME] = df[TAXON_NAME].apply(
             lambda x: self._normalize_text(x) if x else UNKNOWN
         )
+
+        # One hot encoding for the labels
+        unique_values = df[TAXON_NAME].unique()
+        encoded_labels = self._encode_lables(unique_values)
+        df[ENCODED_LABELS] = df[TAXON_NAME].apply(lambda x: encoded_labels[x])
 
         return df
 
@@ -79,7 +104,7 @@ class DatasetLoader:
                 self.transform_json_to_dataset(fragment) for fragment in json_dataset
             ]
             df = pd.concat(dataset, ignore_index=True)
-            df = df[df["taxon.rank"] == SPECIES_NAME]
+            df = df[df[TAXON_RANK] == SPECIES_NAME]
             logging.debug(f"Found {len(df)} images")
 
             logger.info(f"Dataset saved to {dataset_file_name} from JSON")
@@ -89,3 +114,32 @@ class DatasetLoader:
                 f"Failed to save dataset to {dataset_file_name} from JSON: {e}"
             )
             raise
+
+    def download_dataset(self, dataset_path: str, run_dir: str) -> None:
+        """Download the dataset to the input path
+
+        Args:
+            dataset_path: Path to save the dataset
+        """
+        df = self.load_dataset(dataset_path)
+        df = df[[TAXON_NAME, PHOTOS]]
+
+        for index, row in tqdm(df.iterrows(), total=df.shape[0]):
+            species_name = row[TAXON_NAME]
+            photo_urls = eval(row[PHOTOS])  # convert string to list
+            species_dir = os.path.join(run_dir, species_name)
+            if not BaseIO.path_exists(species_dir):
+                BaseIO.create_directory(species_dir)
+
+            for i, url in enumerate(photo_urls):
+                try:
+                    response = get_request(url, stream=True)
+                    if response.status_code == 200:
+                        with open(
+                            os.path.join(species_dir, f"{index}_{i}.jpg"), "wb"
+                        ) as f:
+                            for chunk in response.iter_content(1024):
+                                f.write(chunk)
+                except Exception as e:
+                    logger.error(f"Failed to download photo {url}: {e}")
+                    continue

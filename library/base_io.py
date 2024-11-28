@@ -72,7 +72,7 @@ class BaseIO:
         return is_file
 
     @staticmethod
-    def is_path_valid(path: str) -> bool:
+    def path_exists(path: str) -> bool:
         """Check if the input path is a valid path
 
         Args:

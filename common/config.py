@@ -6,7 +6,7 @@ from common.constants import USERNAME, PASSWORD, APP_ID, APP_SECRET, PROJECT_NAM
 
 class ConfigHelper:
     def __init__(self, config_path):
-        if not config_path or not BaseIO.is_path_valid(config_path):
+        if not config_path or not BaseIO.path_exists(config_path):
             raise ValueError("Config path is not valid")
         self.config_path = config_path
         (

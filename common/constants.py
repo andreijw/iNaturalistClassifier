@@ -37,6 +37,14 @@ SQUARE_SUFIX = "square"
 MEDIUM_SUFIX = "medium"
 LARGE_SUFIX = "large"
 SMALL_SUFIX = "small"
+
+TAXON_NAME = "taxon.name"
+TAXON_RANK = "taxon.rank"
+SPECIES_GUESSES = "species_guess"
+USER_LOGIN = "user.login"
+PHOTOS = "photos"
+ENCODED_LABELS = "encoded_labels"
+
 DATASET_COLUMNS = [
     "id",
     "species_guess",
@@ -48,7 +56,8 @@ DATASET_COLUMNS = [
     "taxon.id",
     "taxon.rank",
     "taxon.rank_level",
-    "taxon.name",
+    TAXON_NAME,
 ]
 
 DATASET_NAME = "dataset"
+SPECIES_NAME = "species"

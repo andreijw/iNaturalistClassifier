@@ -3,7 +3,7 @@ import threading
 import requests
 
 from urllib.parse import urlencode, quote
-from requests import Session, Request, PreparedRequest
+from requests import Session, Request
 from urllib3.util import Retry
 
 logger = logging.getLogger(__name__)
@@ -94,3 +94,17 @@ def get_local_session(**kwargs) -> RequestsHelper:
     if not hasattr(thread_local, "session"):
         thread_local.session = RequestsHelper(**kwargs)
     return thread_local.session
+
+
+def get_request(url: str, stream: bool) -> requests.Response:
+    """Send a GET request to the input URL
+
+    Args:
+        url: URL to send the GET request to
+        stream: Whether to stream the response
+
+    Returns:
+        The response object
+    """
+    session = get_local_session()
+    return session.get(url, stream=stream)

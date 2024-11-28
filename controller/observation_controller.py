@@ -123,3 +123,11 @@ class ObservationController:
         self.dataset_loader.save_json_dataset(
             dataset_path, {"dataset": all_observations}
         )
+
+    def download_dataset(self, dataset_path: str, run_dir: str) -> None:
+        """Download the dataset from the input path
+
+        Args:
+            dataset_path: Path to the dataset
+        """
+        self.dataset_loader.download_dataset(dataset_path, run_dir)

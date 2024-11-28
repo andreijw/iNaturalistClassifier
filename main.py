@@ -39,21 +39,32 @@ def run_application(args: str) -> None:
             run_id = (
                 args.run_id if args.run_id else datetime.now().strftime("%Y%m%d_%H%M%S")
             )
+            run_dir = os.path.join(args.dataset_path, run_id)
+            if not BaseIO.path_exists(run_dir):
+                BaseIO.create_directory(run_dir)
+
             file_name = f"{DATASET_NAME}_{run_id}.csv"
-            dataset_path = os.path.join(args.dataset_path, file_name)
+            dataset_path = os.path.join(run_dir, file_name)
+            observationController = ObservationController()
 
             # Download the dataset if it does not exist
             if not BaseIO.is_path_file(dataset_path):
                 logging.info(f"Downloading dataset to: {dataset_path}")
-                observationController = ObservationController()
                 observationController.save_observations_as_dataset(
                     project_id,
                     dataset_path,
                     run_id=str(args.run_id) if args.run_id else None,
                 )
+            else:
+                logging.info(
+                    f"Dataset already exists at: {dataset_path} for run: {run_id}"
+                )
 
             # Create the dataset
-            logging.info(f"Creating dataset from: {dataset_path}")
+            breakpoint()
+            logging.debug(f"Creating dataset from: {dataset_path}")
+            observationController.download_dataset(dataset_path, run_dir)
+            logging.info(f"Created the dataset at: {dataset_path}")
 
         case Command.PREDICT:
             logging.info(f"Predicting dataset: {args.predict_path}")
@@ -69,7 +80,7 @@ def validate_args(args: argparse.Namespace) -> bool:
         logging.error("Please provide a valid command")
         return False
 
-    if not BaseIO.is_path_valid(args.config_path):
+    if not BaseIO.path_exists(args.config_path):
         logging.error(f"Config path {args.config_path} is not valid")
         return False
 
