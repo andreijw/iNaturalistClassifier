@@ -82,12 +82,6 @@ class DatasetLoader:
         df[TAXON_NAME] = df[TAXON_NAME].apply(
             lambda x: self._normalize_text(x) if x else UNKNOWN
         )
-
-        # One hot encoding for the labels
-        unique_values = df[TAXON_NAME].unique()
-        encoded_labels = self._encode_lables(unique_values)
-        df[ENCODED_LABELS] = df[TAXON_NAME].apply(lambda x: encoded_labels[x])
-
         return df
 
     def save_json_dataset(self, dataset_file_name: str, json_content: dict) -> None:
@@ -100,12 +94,19 @@ class DatasetLoader:
 
         try:
             json_dataset = json_content["dataset"]
+            logging.debug(f"Transforming the dataset to a DataFrame")
             dataset = [
                 self.transform_json_to_dataset(fragment) for fragment in json_dataset
             ]
             df = pd.concat(dataset, ignore_index=True)
             df = df[df[TAXON_RANK] == SPECIES_NAME]
-            logging.debug(f"Found {len(df)} images")
+            logging.debug(f"Kept {len(df)} images")
+
+            # One hot encoding for the labels
+            unique_values = df[TAXON_NAME].unique()
+            logging.debug(f"Found this many labels: {unique_values.shape}")
+            encoded_labels = self._encode_lables(unique_values)
+            df[ENCODED_LABELS] = df[TAXON_NAME].apply(lambda x: encoded_labels[x])
 
             logger.info(f"Dataset saved to {dataset_file_name} from JSON")
             df.to_csv(dataset_file_name, index=False)
