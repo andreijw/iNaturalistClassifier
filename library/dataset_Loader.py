@@ -1,4 +1,10 @@
-from common.constants import DATASET_COLUMNS, SQUARE_SUFIX, MEDIUM_SUFIX, UNKNOWN
+from common.constants import (
+    DATASET_COLUMNS,
+    SQUARE_SUFIX,
+    MEDIUM_SUFIX,
+    UNKNOWN,
+    SPECIES_NAME,
+)
 
 import pandas as pd
 import logging
@@ -27,7 +33,7 @@ class DatasetLoader:
             logger.error(f"Failed to load dataset from {path}: {e}")
             raise
 
-    def _normalize_text(text: str) -> str:
+    def _normalize_text(self, text: str) -> str:
         return str(text).lower().strip()
 
     def transform_json_to_dataset(self, json_content: str) -> pd.DataFrame:
@@ -73,6 +79,7 @@ class DatasetLoader:
                 self.transform_json_to_dataset(fragment) for fragment in json_dataset
             ]
             df = pd.concat(dataset, ignore_index=True)
+            df = df[df["taxon.rank"] == SPECIES_NAME]
             logging.debug(f"Found {len(df)} images")
 
             logger.info(f"Dataset saved to {dataset_file_name} from JSON")
