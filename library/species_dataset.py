@@ -11,7 +11,7 @@ from library.base_io import BaseIO
 
 
 class SpeciesDataset(Dataset):
-    def __init__(self, dataset_dir: str, transform=transforms.Compose = None):
+    def __init__(self, dataset_dir: str, transform: transforms.Compose = None):
         self.dataset_dir = dataset_dir
         self.transform = transform
         self.image_paths = []
@@ -28,7 +28,6 @@ class SpeciesDataset(Dataset):
                     image_path = os.path.join(label_dir, image_name)
                     self.image_paths.append(image_path)
                     self.label_names.append(label)
-                    
 
     def __len__(self):
         return len(self.image_paths)
@@ -42,13 +41,13 @@ class SpeciesDataset(Dataset):
         if self.transform:
             image = self.transform(image)
         return image, encoded_label
-    
-    def generate_labels(self, dataset_dir:str, extension: str) -> dict:
-        """ Generate the labels from the dataset directory """
+
+    def generate_labels(self, dataset_dir: str, extension: str) -> dict:
+        """Generate the labels from the dataset directory"""
         dataset_file = glob.glob(f"{dataset_dir}/*{extension}")
         if not dataset_file:
             raise FileNotFoundError(f"No dataset file found in {dataset_dir}")
-        
+
         dataset_file = dataset_file[0]
         df = pd.read_csv(dataset_file)
         df = df[TAXON_NAME]
