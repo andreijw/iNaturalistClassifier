@@ -61,7 +61,6 @@ def run_application(args: str) -> None:
                 )
 
             # Create the dataset
-            breakpoint()
             logging.debug(f"Creating dataset from: {dataset_path}")
             observationController.download_dataset(dataset_path, run_dir)
             logging.info(f"Created the dataset at: {dataset_path}")

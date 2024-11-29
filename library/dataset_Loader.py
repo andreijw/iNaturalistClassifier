@@ -45,10 +45,11 @@ class DatasetLoader:
             logger.error(f"Failed to load dataset from {path}: {e}")
             raise
 
-    def _normalize_text(self, text: str) -> str:
+    def normalize_text(self, text: str) -> str:
         return str(text).lower().strip()
 
-    def _encode_lables(self, labels: NDArray) -> dict:
+    @staticmethod
+    def encode_labels(labels: NDArray) -> dict:
         onehot_encoder = OneHotEncoder()
         onehot_labels = onehot_encoder.fit_transform(labels.reshape(-1, 1))
         species_to_onehot = {
@@ -76,11 +77,11 @@ class DatasetLoader:
             )
         )
         df[SPECIES_GUESSES] = df[SPECIES_GUESSES].apply(
-            lambda x: self._normalize_text(x) if x else UNKNOWN
+            lambda x: self.normalize_text(x) if x else UNKNOWN
         )
         df[USER_LOGIN] = df[USER_LOGIN].apply(lambda x: x if x else UNKNOWN)
         df[TAXON_NAME] = df[TAXON_NAME].apply(
-            lambda x: self._normalize_text(x) if x else UNKNOWN
+            lambda x: self.normalize_text(x) if x else UNKNOWN
         )
         return df
 
@@ -105,7 +106,7 @@ class DatasetLoader:
             # One hot encoding for the labels
             unique_values = df[TAXON_NAME].unique()
             logging.debug(f"Found this many labels: {unique_values.shape}")
-            encoded_labels = self._encode_lables(unique_values)
+            encoded_labels = DatasetLoader.encode_labels(unique_values)
             df[ENCODED_LABELS] = df[TAXON_NAME].apply(lambda x: encoded_labels[x])
 
             logger.info(f"Dataset saved to {dataset_file_name} from JSON")
