@@ -1,13 +1,18 @@
 import os
 import glob
+import torch
 import pandas as pd
-from torch.utils import Dataset
+from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
 from common.constants import TAXON_NAME
 from library.dataset_Loader import DatasetLoader
 
 from library.base_io import BaseIO
+
+import logging
+
+logging.getLogger("PIL").setLevel(logging.WARNING)
 
 
 class SpeciesDataset(Dataset):
@@ -35,8 +40,9 @@ class SpeciesDataset(Dataset):
     def __getitem__(self, idx):
         image_path = self.image_paths[idx]
         label = self.label_names[idx]
-        encoded_label = self.lables_to_index[label]
-        image = Image.open(image_path)
+        encoded_label = self.lables_to_index[label].toarray().squeeze()
+        encoded_label = torch.tensor(encoded_label, dtype=torch.float32)
+        image = Image.open(image_path).convert("RGB")
 
         if self.transform:
             image = self.transform(image)
@@ -52,5 +58,5 @@ class SpeciesDataset(Dataset):
         df = pd.read_csv(dataset_file)
         df = df[TAXON_NAME]
 
-        label_values = df[TAXON_NAME].unique()
+        label_values = df.unique()
         return DatasetLoader.encode_labels(label_values)

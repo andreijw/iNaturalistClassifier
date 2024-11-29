@@ -8,12 +8,13 @@ import argparse
 from datetime import datetime
 import os
 
-from common.constants import DATASET_NAME
+from common.constants import DATASET_NAME, OUTPUT_NAME, MODEL_NAME
 from common.command import Command, validate_command, string_to_command
 from common.config import ConfigHelper
 from library.base_io import BaseIO
 from controller.project_controller import ProjectController
 from controller.observation_controller import ObservationController
+from model.trainer import ModelTrainer
 
 
 def run_application(args: str) -> None:
@@ -24,21 +25,16 @@ def run_application(args: str) -> None:
     command = Command(args.command)
     config = ConfigHelper(args.config_path)
     logging.debug(f"Config: {config}")
+    run_id = get_run_id(args.run_id)
 
     match (command):
         case Command.DOWNLOAD:
-            logging.info(f"Clearing dataset directory: {args.dataset_path}")
-
             # Get the project ID from the config name
             projectController = ProjectController()
             project_id = projectController.get_project_id_by_name(config.project_name)
 
             logging.debug(f"Found the following project id {project_id}")
 
-            # Generate a unique file name with run ID or timestamp
-            run_id = (
-                args.run_id if args.run_id else datetime.now().strftime("%Y%m%d_%H%M%S")
-            )
             run_dir = os.path.join(args.dataset_path, run_id)
             if not BaseIO.path_exists(run_dir):
                 BaseIO.create_directory(run_dir)
@@ -65,9 +61,17 @@ def run_application(args: str) -> None:
             observationController.download_dataset(dataset_path, run_dir)
             logging.info(f"Created the dataset at: {dataset_path}")
 
+        case Command.TRAIN:
+            logging.info(f"Training model on dataset: {args.predict_path}")
+
+            output_file = os.path.join(args.predict_path, f"{OUTPUT_NAME}_{run_id}.txt")
+            output_model = os.path.join(args.predict_path, f"{MODEL_NAME}_{run_id}.pt")
+            logging.debug(f"Output file: {output_file} | Output model: {output_model}")
+
+            trainer = ModelTrainer(output_model, args.predict_path, output_file)
+
         case Command.PREDICT:
             logging.info(f"Predicting dataset: {args.predict_path}")
-            # Predict the dataset
         case _:
             logging.error(f"Command not found: {args.command}")
 
@@ -97,6 +101,12 @@ def validate_args(args: argparse.Namespace) -> bool:
         BaseIO.create_directory(operating_path)
 
     return True
+
+
+def get_run_id(run_id: str) -> str:
+    """Get the run ID from the arguments or generate a new one"""
+    id = run_id if run_id else datetime.now().strftime("%Y%m%d_%H%M%S")
+    return id
 
 
 if __name__ == "__main__":
@@ -138,6 +148,14 @@ if __name__ == "__main__":
         str(Command.PREDICT.value).lower(), help="Predict a dataset"
     )
     classify_parser.add_argument(
+        "-p", "--predict_path", help="Path to the dataset to predict", required=True
+    )
+
+    # Subparser for the train command
+    train_parser = subparsers.add_parser(
+        str(Command.TRAIN.value).lower(), help="Train a model on a dataset"
+    )
+    train_parser.add_argument(
         "-p", "--predict_path", help="Path to the dataset to predict", required=True
     )
 

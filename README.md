@@ -42,13 +42,19 @@ config.json - currently ignored in the project
 Create a dataset
 
 ``` sh
-python main.py download --config_path /path/to/config.json --dataset_path /path/to/dataset --verbose
+python main.py -v -r run_id download --config_path /path/to/config.json --dataset_path /path/to/dataset 
 ```
 
-Classify a dataset
+Train a model
 
 ```sh
-python main.py classify --config_path /path/to/config.json --classify_path /path/to/classify --verbose
+python main.py -v -r run_id train --config_path /path/to/config.json --predict_path /path/to/classify
 ```
 
-Can also pass in a specific run id to keep track of different runs / re-run a run
+Predict a dataset
+
+``` sh
+python main.py -v -r run_id predict --config_path /path/to/config.json --predict_path /path/to/classify
+```
+
+Can also pass in a specific run id to keep track of different runs / re-run a run with that id

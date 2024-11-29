@@ -60,4 +60,6 @@ DATASET_COLUMNS = [
 ]
 
 DATASET_NAME = "dataset"
+OUTPUT_NAME = "prediction"
+MODEL_NAME = "model"
 SPECIES_NAME = "species"

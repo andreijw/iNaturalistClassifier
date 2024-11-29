@@ -7,6 +7,7 @@ class Command(Enum):
     """
 
     DOWNLOAD = "download"
+    TRAIN = "train"
     PREDICT = "predict"
 
 
