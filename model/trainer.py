@@ -2,6 +2,7 @@ from library.species_dataset import SpeciesDataset
 from library.base_io import BaseIO
 from model.cnn import CNN
 
+import random
 import logging
 import torch
 import torch.nn as nn
@@ -19,12 +20,17 @@ class ModelTrainer:
         model_path: str,
         dataset_dir: str,
         output_path: str,
-        num_epochs: int = 10,
+        num_epochs: int = 20,
+        seed: int = 42,
     ) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model_path = model_path
         self.dataset_dir = dataset_dir
         self.output_path = output_path
+        self.seed = seed
+
+        random.seed(self.seed)
+        torch.manual_seed(self.seed)
 
         # Transforms for the images
         self.transform = transforms.Compose(
