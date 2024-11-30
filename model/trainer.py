@@ -1,4 +1,5 @@
 from library.species_dataset import SpeciesDataset
+from library.base_io import BaseIO
 from model.cnn import CNN
 
 import logging
@@ -18,7 +19,7 @@ class ModelTrainer:
         model_path: str,
         dataset_dir: str,
         output_path: str,
-        num_epochs: int = 2,
+        num_epochs: int = 10,
     ) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model_path = model_path
@@ -28,7 +29,7 @@ class ModelTrainer:
         # Transforms for the images
         self.transform = transforms.Compose(
             [
-                transforms.Resize((224, 224)),
+                transforms.Resize((128, 128)),
                 transforms.ToTensor(),
             ]
         )
@@ -40,7 +41,7 @@ class ModelTrainer:
         # Define the split sizes
         train_size = int(0.75 * len(dataset))
         val_size = len(dataset) - train_size
-        batch_size = 256
+        batch_size = 512
         train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -53,7 +54,7 @@ class ModelTrainer:
         self.model = CNN(num_classes=num_clases).to(self.device)
 
         # If a model exists, load the model
-        if torch.exists(self.model_path):
+        if BaseIO.is_path_file(self.model_path):
             self.model.load_state_dict(torch.load(self.model_path))
             logger.info(f"Model loaded from: {self.model_path}")
         self.model.eval()

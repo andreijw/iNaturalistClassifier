@@ -11,7 +11,7 @@ class CNN(nn.Module):
         self.relu = nn.ReLU()
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
         self.dropout = nn.Dropout(0.5)
-        self.fc1 = nn.Linear(128 * 28 * 28, 512)
+        self.fc1 = nn.Linear(128 * 16 * 16, 512)
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256, num_classes)
 
@@ -20,7 +20,7 @@ class CNN(nn.Module):
         x = self.pool(self.relu(self.conv2(x)))
         x = self.pool(self.relu(self.conv3(x)))
         # x = self.pool(self.relu(self.conv4(x)))
-        x = x.view(-1, 128 * 28 * 28)
+        x = x.view(-1, 128 * 16 * 16)
         x = self.dropout(self.relu(self.fc1(x)))
         x = self.dropout(self.relu(self.fc2(x)))
         x = self.fc3(x)
