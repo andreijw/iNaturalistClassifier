@@ -18,7 +18,7 @@ class ModelTrainer:
         model_path: str,
         dataset_dir: str,
         output_path: str,
-        num_epochs: int = 1,
+        num_epochs: int = 2,
     ) -> None:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model_path = model_path
@@ -51,6 +51,13 @@ class ModelTrainer:
 
         num_clases = len(dataset.lables_to_index)
         self.model = CNN(num_classes=num_clases).to(self.device)
+
+        # If a model exists, load the model
+        if torch.exists(self.model_path):
+            self.model.load_state_dict(torch.load(self.model_path))
+            logger.info(f"Model loaded from: {self.model_path}")
+        self.model.eval()
+
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
         self.num_epochs = num_epochs
@@ -67,6 +74,7 @@ class ModelTrainer:
         avg_loss, accuracy = self.evaluate_model(
             self.model, val_loader, self.criterion, self.output_path
         )
+        self.model.eval()
 
     def train_model(
         self,
@@ -128,7 +136,7 @@ class ModelTrainer:
 
         logger.info(f"Evaluation Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}")
 
-        with open(output_path, "w") as f:
+        with open(output_path, "a") as f:
             f.write(f"Evaluation Loss: {avg_loss:.4f}, Accuracy: {accuracy:.4f}")
 
         logger.debug(f"Output saved to: {output_path}")
