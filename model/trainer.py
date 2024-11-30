@@ -106,6 +106,8 @@ class ModelTrainer:
             epoch_loss = running_loss / len(dataloader.dataset)
             logger.debug(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}")
 
+            torch.save(model.state_dict(), model_path)
+
         torch.save(model.state_dict(), model_path)
         logger.info(f"Model saved to: {model_path}")
 
